@@ -1,0 +1,25 @@
+services:
+  tennisbot:
+    build: .
+    image: tennis-bot:latest
+    container_name: tennisbot
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      TZ: Europe/Paris
+    volumes:
+      # Base SQLite, captures de débogage, battement de santé
+      - tennisbot-data:/app/data
+      # Configuration modifiable sans reconstruire l'image
+      - ./config.yaml:/app/config.yaml:ro
+    # Chromium a besoin d'un /dev/shm plus grand que les 64 Mo par défaut
+    shm_size: 1gb
+    init: true
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+volumes:
+  tennisbot-data:
