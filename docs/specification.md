@@ -36,9 +36,9 @@ Un CAPTCHA a été ajouté au processus de réservation ; plusieurs projets ont 
 
 ## 3. Analyse des dépôts GitHub existants et choix de méthode
 
-Recommandation : reprendre l'approche de par-ici-tennis (navigateur headless, connexion anticipée puis attente de 8h00) pour la réservation, et l'appel AJAX de disponibilité de tennis-paris-watcher pour la recherche rapide.
+Recommandation : s'inspirer de l'approche de par-ici-tennis (navigateur headless, connexion anticipée puis attente de 8h00) pour la réservation, et l'appel AJAX de disponibilité de tennis-paris-watcher pour la recherche rapide.
 
-| Dépôt | Stack | Ce qu'on reprend | Limites |
+| Dépôt | Stack | Idées dont on s'inspire | Limites |
 | --- | --- | --- | --- |
 | [bertrandda/par-ici-tennis](https://github.com/bertrandda/par-ici-tennis) | Node.js, navigateur headless | Config `locations` (liste ordonnée ou objet `{site: [n° courts]}`), `hours` par préférence, `priceType`, `courtType`, `players` (3 max), mode dry-run, notifications ntfy + fichier .ics | Un seul compte ; pas d'interface de pilotage |
 | [ericboucher/par-ici-tennis](https://github.com/ericboucher/par-ici-tennis) (fork) | Idem + GitHub Actions | Lancement à 7h40, login anticipé, attente active jusqu'à 8h00, alerte si le login finit après 8h00 ; option `day` (jour de semaine cible) | GitHub Actions peu précis à la minute |
@@ -49,6 +49,8 @@ Recommandation : reprendre l'approche de par-ici-tennis (navigateur headless, co
 | [clementlecorre/tennis-ripa](https://github.com/clementlecorre/tennis-ripa) | Bot Telegram autour de par-ici-tennis | Commandes `/add`, `/list`, `/now` : bon modèle pour Discord | Indiqué comme cassé depuis l'ajout du CAPTCHA |
 
 **Choix retenu**
+
+Ces dépôts servent uniquement de **référence** : TennisBot est une implémentation indépendante. Aucun de ces projets n'est installé comme dépendance npm, inclus dans le dépôt (copie ou sous-module), ni exécuté comme service ou processus à côté du bot. On en reprend les idées (endpoints, enchaînement des étapes, format de configuration), pas le code.
 
 - **Recherche** : appel HTTP direct à l'endpoint AJAX de disponibilité (rapide, sans navigateur), utilisé pour la veille et l'aperçu `/dispo`.
 - **Réservation** : Playwright (Chromium headless), une session navigateur par compte, connexion à 7h55, réservation à 8h00:00.
@@ -125,7 +127,7 @@ L'orchestrateur reçoit les demandes du bot et du planificateur, interroge la di
 | Coffre d'identifiants | Mots de passe chiffrés au repos | AES-256-GCM, clé en variable d'environnement |
 | Stockage | Comptes, préférences, demandes, réservations, journal | SQLite (Prisma ou Drizzle) |
 
-Alternative Python équivalente : discord.py + APScheduler + Playwright Python. Le choix Node.js permet de réutiliser directement le code de par-ici-tennis.
+Alternative Python équivalente : discord.py + APScheduler + Playwright Python. Le choix Node.js permet de lire facilement les projets existants pour s'en inspirer, sans en dépendre (voir section 3).
 
 ### 5.2 Modèle de données
 
