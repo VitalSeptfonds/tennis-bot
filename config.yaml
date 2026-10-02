@@ -1,5 +1,5 @@
 timezone: Europe/Paris
-opening: { hour: "08:00:00", days_ahead: 6 }  # à valider : 6 ou 7
+opening: { hour: "08:00:00", days_ahead: 6 }  # confirmé : vendredi 8h → jeudi suivant (J+6)
 prewarm_minutes: 5
 max_parallel_workers: 4
 partial_policy: keep          # keep | rollback

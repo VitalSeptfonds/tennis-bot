@@ -142,7 +142,7 @@ Alternative Python équivalente : discord.py + APScheduler + Playwright Python. 
 
 ```yaml
 timezone: Europe/Paris
-opening: { hour: "08:00:00", days_ahead: 6 }  # à valider : 6 ou 7
+opening: { hour: "08:00:00", days_ahead: 6 }  # confirmé : vendredi 8h → jeudi suivant (J+6)
 prewarm_minutes: 5
 max_parallel_workers: 4
 partial_policy: keep          # keep | rollback
@@ -236,11 +236,11 @@ Quatre jalons, chacun utilisable seul, du simple outil de consultation jusqu'au 
 
 **Questions ouvertes**
 
-- [ ] Ouverture à J-6 ou J-7 ? Le site officiel dit 7 jours, les scripts ciblent J+6 : à trancher par un dry-run.
+- [x] Ouverture à J-6 ou J-7 ? **J+6** : le vendredi à 8h00 ouvre les créneaux du jeudi suivant.
 - [ ] Nombre de comptes disponibles dans le groupe, et qui accepte d'être titulaire.
 - [ ] Qui est disponible à 8h00 pour le relais CAPTCHA ?
-- [ ] Hébergement : VPS (≈ 5 €/mois) ou machine personnelle allumée ?
-- [ ] Langage : Node.js (réutilisation de par-ici-tennis) ou Python ?
+- [x] Hébergement : **machine personnelle** dédiée, déploiement Docker Compose.
+- [x] Langage : **Node.js** (TypeScript).
 
 **Sources**
 
