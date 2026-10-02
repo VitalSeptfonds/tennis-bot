@@ -3,8 +3,20 @@
 Bot Discord qui réserve automatiquement des courts Paris Tennis à l'ouverture des créneaux (8h00).
 La spécification complète est dans [`docs/specification.md`](docs/specification.md).
 
-> État actuel : squelette déployable (connexion Discord, commande `/ping`, chargement de `config.yaml`,
-> Chromium headless disponible pour Playwright). Les fonctionnalités arrivent jalon par jalon (section 8 de la spécification).
+> État actuel : **v0.1 Consultation** (section 8 de la spécification). Aucun compte Paris Tennis n'est nécessaire.
+> Les jalons suivants (réservation, multi-comptes, confort) arrivent dans l'ordre.
+
+## Commandes disponibles (v0.1)
+
+| Commande | Effet |
+| --- | --- |
+| `/ping` | Vérifie que le bot répond |
+| `/terrains ajouter` | Ajoute un tennis (autocomplétion sur l'annuaire officiel) ; options `courts` (ex. `5,7`), `rang`, `couvert`, `perso` |
+| `/terrains retirer` · `ordonner` · `liste` | Retire, change la position, affiche la liste |
+| `/dispo` | Créneaux libres sur vos terrains préférés : `date` (`demain`, `jeudi`, `08/10`…), `heure_debut`, `heure_fin`, `couvert?` |
+
+La liste de terrains est celle du **groupe** par défaut ; avec `perso: oui`, vous gérez une liste personnelle qui la remplace pour vous
+(réponse visible de vous seul). Les courts sont lus sur le site public de Paris Tennis, une requête par tennis (cache 30 s).
 
 ## Déploiement avec Docker Compose
 
@@ -63,4 +75,5 @@ npm install
 npx playwright install chromium
 cp .env.example .env   # puis le remplir
 npm run build && node --env-file=.env dist/index.js
+npm test                # tests unitaires (dates, favoris, parseur sur du HTML réel de Paris Tennis)
 ```

@@ -1,22 +1,22 @@
 import { mkdirSync, writeFileSync } from "node:fs";
-import {
-  Client,
-  Events,
-  GatewayIntentBits,
-  REST,
-  Routes,
-  SlashCommandBuilder,
-} from "discord.js";
+import { Client, Events, GatewayIntentBits, MessageFlags, REST, Routes, SlashCommandBuilder } from "discord.js";
 import { loadConfig, loadEnv } from "./config.js";
+import { openDb } from "./db.js";
 import { HEARTBEAT_INTERVAL_MS, heartbeatPath } from "./heartbeat.js";
+import { ParisSession } from "./paris/session.js";
+import type { Ctx } from "./commands/context.js";
+import { dispoCommand, runDispo } from "./commands/dispo.js";
+import { autocompleteSite, runTerrains, terrainsCommand } from "./commands/terrains.js";
 
 const env = loadEnv();
 const config = loadConfig(env.configPath);
 mkdirSync(env.dataDir, { recursive: true });
+const ctx: Ctx = { db: openDb(env.dataDir), config, session: new ParisSession() };
 
-// Les commandes de la spécification (/dispo, /reserver, ...) seront ajoutées jalon par jalon.
 const commands = [
   new SlashCommandBuilder().setName("ping").setDescription("Vérifie que TennisBot répond"),
+  dispoCommand,
+  terrainsCommand,
 ];
 
 async function registerCommands(): Promise<void> {
@@ -36,9 +36,29 @@ client.once(Events.ClientReady, (c) => {
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
-  if (!interaction.isChatInputCommand()) return;
-  if (interaction.commandName === "ping") {
-    await interaction.reply({ content: `pong (${Date.now() - interaction.createdTimestamp} ms)` });
+  try {
+    if (interaction.isAutocomplete()) {
+      if (interaction.commandName === "terrains") await autocompleteSite(interaction, ctx);
+      return;
+    }
+    if (!interaction.isChatInputCommand()) return;
+    switch (interaction.commandName) {
+      case "ping":
+        await interaction.reply({ content: `pong (${Date.now() - interaction.createdTimestamp} ms)` });
+        break;
+      case "dispo":
+        await runDispo(interaction, ctx);
+        break;
+      case "terrains":
+        await runTerrains(interaction, ctx);
+        break;
+    }
+  } catch (err) {
+    console.error("Erreur de commande :", (err as Error).message);
+    if (interaction.isRepliable()) {
+      const msg = { content: "Une erreur est survenue, réessayez dans un instant.", flags: MessageFlags.Ephemeral } as const;
+      await (interaction.deferred || interaction.replied ? interaction.followUp(msg) : interaction.reply(msg)).catch(() => {});
+    }
   }
 });
 
